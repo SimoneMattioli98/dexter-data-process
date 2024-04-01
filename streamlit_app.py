@@ -40,6 +40,15 @@ if uploaded_file is not None:
               ).properties(height=700)
   st.altair_chart(chart, use_container_width=True)
 
+  fn = 'scatter.png'
+  plt.savefig(fn)
+  with open(fn, "rb") as img:
+    btn = st.download_button(
+        label="Download image",
+        data=img,
+        file_name=fn,
+        mime="image/png"
+    )
 
 
 df = pd.read_csv('data/movies_genres_summary.csv')
