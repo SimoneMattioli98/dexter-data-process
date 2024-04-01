@@ -14,7 +14,7 @@ st.title('📊 Dexter data processing')
 #  st.markdown('**How to use the app?**')
 #  st.warning('To engage with the app, 1. Select genres of your interest in the drop-down selection box and then 2. Select the year duration from the slider widget. As a result, this should generate an updated editable DataFrame and line plot.')
   
-#st.subheader('Select a csv file with data...')
+st.subheader('Select a csv file with the data to process...')
 
 uploaded_file = st.file_uploader("Choose a file")
 if uploaded_file is not None:
@@ -30,19 +30,19 @@ if uploaded_file is not None:
   df["date"] = df["date"].dt.to_timestamp('M')
   df["date"] = pd.to_datetime(df["date"]).dt.date
 
-  print(df)
-
   year_list = pd.to_datetime(df["date"]).dt.year.unique()
   year_selection = st.slider('Select year duration', year_list.min(), year_list.max(), (year_list.min(), year_list.max()))
   year_selection_list = list(np.arange(year_selection[0], year_selection[1]+1))
   df_selection = df[pd.to_datetime(df["date"]).dt.year.isin(year_selection_list)]
-  print(year_selection_list)
   reshaped_df = df_selection.pivot_table(index='date', dropna=False)
 
   df_editor = st.data_editor(reshaped_df, height=400, use_container_width=True,
                             num_rows="dynamic")
   df_chart = df_editor.reset_index()
   df_chart["date"] = pd.to_datetime(df_chart["date"])
+
+  st.subheader(f'Missing data: {nan_temperature}')
+
 
   chart = alt.Chart(df_chart).mark_line().encode(
               x=alt.X('date:T', title='Date'),  #O N Q T G
@@ -58,6 +58,8 @@ if uploaded_file is not None:
       width=1920,
       height=1080
     )
+
+
   
   file_name = "chart.png"
 
