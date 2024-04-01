@@ -34,21 +34,15 @@ if uploaded_file is not None:
   df_editor = st.data_editor(reshaped_df, height=400, use_container_width=True,
                             num_rows="dynamic")
   df_chart = df_editor.reset_index()
+  df_chart["date"] = pd.to_datetime(df_chart["date"])
   chart = alt.Chart(df_chart).mark_line().encode(
               x=alt.X('date:T', title='Date'),  #O N Q T G
               y=alt.Y('temperature', title='Temperature (C°)'),
               ).properties(height=700)
   st.altair_chart(chart, use_container_width=True)
 
-  fn = 'scatter.png'
-  plt.savefig(chart)
-  with open(fn, "rb") as img:
-    btn = st.download_button(
-        label="Download image",
-        data=img,
-        file_name=fn,
-        mime="image/png"
-    )
+  chart.save('chart.png')
+
 
 
 df = pd.read_csv('data/movies_genres_summary.csv')
