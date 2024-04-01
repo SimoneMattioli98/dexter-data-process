@@ -41,7 +41,7 @@ if uploaded_file is not None:
   st.altair_chart(chart, use_container_width=True)
 
   fn = 'scatter.png'
-  plt.savefig(fn)
+  plt.savefig(chart)
   with open(fn, "rb") as img:
     btn = st.download_button(
         label="Download image",
