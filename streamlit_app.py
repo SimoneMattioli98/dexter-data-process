@@ -23,7 +23,14 @@ if uploaded_file is not None:
   df.rename(columns={'date_start': "date"}, inplace=True)
   df["date"] = pd.to_datetime(df["date"]).dt.date
   nan_temperature: int = df["temperature"].isna().sum()
+
+  df = df.groupby(pd.PeriodIndex(df["date"], freq="M"))
+  df = df['temperature'].mean().reset_index()
   df["temperature"] = df["temperature"].round()
+  df["date"] = df["date"].dt.to_timestamp('M')
+  df["date"] = pd.to_datetime(df["date"]).dt.date
+
+  print(df)
 
   year_list = pd.to_datetime(df["date"]).dt.year.unique()
   year_selection = st.slider('Select year duration', year_list.min(), year_list.max(), (year_list.min(), year_list.max()))
@@ -35,45 +42,32 @@ if uploaded_file is not None:
                             num_rows="dynamic")
   df_chart = df_editor.reset_index()
   df_chart["date"] = pd.to_datetime(df_chart["date"])
+
   chart = alt.Chart(df_chart).mark_line().encode(
               x=alt.X('date:T', title='Date'),  #O N Q T G
               y=alt.Y('temperature', title='Temperature (C°)'),
-              ).properties(height=700)
+              )
+  
   st.altair_chart(chart, use_container_width=True)
 
-  chart.save('chart.png')
+  chart = alt.Chart(df_chart).mark_line().encode(
+                x=alt.X('date:T', title='Date'),  #O N Q T G
+                y=alt.Y('temperature', title='Temperature (C°)'),
+                ).properties(
+      width=1920,
+      height=1080
+    )
+  
+  file_name = "chart.png"
 
+  chart.save(file_name)
 
-
-df = pd.read_csv('data/movies_genres_summary.csv')
-df.year = df.year.astype('int')
-
-# Input widgets
-## Genres selection
-genres_list = df.genre.unique()
-genres_selection = st.multiselect('Select genres', genres_list, ['Action', 'Adventure', 'Biography', 'Comedy', 'Drama', 'Horror'])
-
-## Year selection
-year_list = df.year.unique()
-year_selection = st.slider('Select year duration', 1986, 2006, (2000, 2016))
-year_selection_list = list(np.arange(year_selection[0], year_selection[1]+1))
-
-df_selection = df[df.genre.isin(genres_selection) & df['year'].isin(year_selection_list)]
-reshaped_df = df_selection.pivot_table(index='year', columns='genre', values='gross', aggfunc='sum', fill_value=0)
-reshaped_df = reshaped_df.sort_values(by='year', ascending=False)
-
-
-# Display DataFrame
-
-df_editor = st.data_editor(reshaped_df, height=212, use_container_width=True,
-                            column_config={"year": st.column_config.TextColumn("Year")},
-                            num_rows="dynamic")
-df_chart = pd.melt(df_editor.reset_index(), id_vars='year', var_name='genre', value_name='gross')
-
-# Display chart
-chart = alt.Chart(df_chart).mark_line().encode(
-            x=alt.X('year:N', title='Year'),
-            y=alt.Y('gross:Q', title='Gross earnings ($)'),
-            color='genre:N'
-            ).properties(height=320)
-st.altair_chart(chart, use_container_width=True)
+  
+  with open(file_name, "rb") as file:
+    btn = st.download_button(
+            label="Download image",
+            data=file,
+            file_name=file_name,
+            mime="image/png"
+          )
+    
