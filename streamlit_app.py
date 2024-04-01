@@ -36,6 +36,7 @@ if uploaded_file is not None:
   year_selection = st.slider('Select year duration', year_list.min(), year_list.max(), (year_list.min(), year_list.max()))
   year_selection_list = list(np.arange(year_selection[0], year_selection[1]+1))
   df_selection = df[pd.to_datetime(df["date"]).dt.year.isin(year_selection_list)]
+  print(year_selection_list)
   reshaped_df = df_selection.pivot_table(index='date', dropna=False)
 
   df_editor = st.data_editor(reshaped_df, height=400, use_container_width=True,
@@ -67,7 +68,7 @@ if uploaded_file is not None:
     btn = st.download_button(
             label="Download image",
             data=file,
-            file_name=file_name,
+            file_name=f"graph-{year_selection_list[0]}-{year_selection_list[-1]}.png",
             mime="image/png"
           )
     
