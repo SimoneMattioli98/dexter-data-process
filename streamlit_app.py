@@ -24,6 +24,9 @@ if uploaded_file is not None:
   df["date"] = pd.to_datetime(df["date"]).dt.date
   nan_temperature: int = df["temperature"].isna().sum()
 
+  st.subheader(f'Missing data: {nan_temperature}')
+
+
   df = df.groupby(pd.PeriodIndex(df["date"], freq="M"))
   df = df['temperature'].mean().reset_index()
   df["temperature"] = df["temperature"].round()
@@ -41,7 +44,6 @@ if uploaded_file is not None:
   df_chart = df_editor.reset_index()
   df_chart["date"] = pd.to_datetime(df_chart["date"])
 
-  st.subheader(f'Missing data: {nan_temperature}')
 
 
   chart = alt.Chart(df_chart).mark_line().encode(
