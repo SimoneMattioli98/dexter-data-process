@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import altair as alt
+import streamlit as st
 
 # Page title
 st.set_page_config(page_title='Interactive Data Explorer', page_icon='📊')
@@ -15,7 +16,32 @@ with st.expander('About this app'):
   
 st.subheader('Which Movie Genre performs ($) best at the box office?')
 
-# Load data
+uploaded_file = st.file_uploader("Choose a file")
+if uploaded_file is not None:
+  df = pd.read_csv(uploaded_file)# Load data
+  df = df.drop(["date_end"], axis=1)
+  df.rename(columns={'date_start': "date"}, inplace=True)
+  df["date"] = pd.to_datetime(df["date"]).dt.date
+  nan_temperature: int = df["temperature"].isna().sum()
+  df["temperature"] = df["temperature"].round()
+
+  year_list = pd.to_datetime(df["date"]).dt.year.unique()
+  year_selection = st.slider('Select year duration', year_list.min(), year_list.max(), (year_list.min(), year_list.max()))
+  year_selection_list = list(np.arange(year_selection[0], year_selection[1]+1))
+  df_selection = df[pd.to_datetime(df["date"]).dt.year.isin(year_selection_list)]
+  reshaped_df = df_selection.pivot_table(index='date', dropna=False)
+
+  df_editor = st.data_editor(reshaped_df, height=400, use_container_width=True,
+                            num_rows="dynamic")
+  df_chart = df_editor.reset_index()
+  chart = alt.Chart(df_chart).mark_line().encode(
+              x=alt.X('date:T', title='Date'),  #O N Q T G
+              y=alt.Y('temperature', title='Temperature (C°)'),
+              ).properties(height=700)
+  st.altair_chart(chart, use_container_width=True)
+
+
+
 df = pd.read_csv('data/movies_genres_summary.csv')
 df.year = df.year.astype('int')
 
