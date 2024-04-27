@@ -4,6 +4,8 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 import matplotlib.pyplot as plt
+
+from utils import clean_up_csv, get_cold_dates, get_top_ten
 st.set_page_config(page_title='Temperature', page_icon='📊')
 st.title('📊 Temperature')
 
@@ -15,34 +17,101 @@ st.subheader('Select a csv file with  medium temperatures...')
 mean_temp_file = st.file_uploader("Choose a file", key=3)
 
 
+
 if min_temp_file is not None:
-    min_df = pd.read_csv(min_temp_file) # Load data
-    min_df = min_df.drop(["date_end"], axis=1)
-    min_df.rename(columns={'date_start': "date"}, inplace=True)
-    min_df["date"] = pd.to_datetime(min_df["date"]).dt.date
-    min_df["date"] = pd.to_datetime(min_df["date"])
-    min_nan_temperature: int = min_df["temperature"].isna().sum()
-    min_df_gb_year = min_df.groupby(pd.PeriodIndex(min_df["date"], freq="Y"))
+    min_df_gb_year, min_nan_temperature = clean_up_csv(min_temp_file)
     
-    df_empty = pd.DataFrame()
+    min_df_empty = pd.DataFrame()
+
+    current_soft = [-1, -1]
+    current_hard = [-1, -1]
+    prev_soft = [-1, -1]
+    prev_hard = [-1, -1]
+    first_soft_negative_second_half = 1
+    first_hard_negative_second_half = 1
+    last_soft_negative_second_half = 1
+    last_hard_negative_second_half = 1
+    first_soft_negative_first_half = 1
+    first_hard_negative_first_half = 1
+    last_soft_negative_first_half = 1
+    last_hard_negative_first_half = 1
+
+    last_year_last_soft_cold = 1
+    last_year_last_hard_cold = 1
+
+    print("START")
+    
+    for i, (_, group) in enumerate(min_df_gb_year):
+        first_half = group.iloc[:180].dropna()
+        second_half = group.iloc[180:].dropna()
+
+        if second_half.size > 0:
+            (first_soft_negative_second_half,
+             last_soft_negative_second_half,
+            first_hard_negative_second_half,
+            last_hard_negative_second_half) = get_cold_dates(second_half)
+
+        if first_half.size > 0:
+            (first_soft_negative_first_half,
+             last_soft_negative_first_half,
+            first_hard_negative_first_half,
+            last_hard_negative_first_half) = get_cold_dates(first_half)
+
+        current_soft[0] = first_soft_negative_second_half
+        current_hard[0] = first_hard_negative_second_half
+        if i != 0:
+            prev_soft[1] = last_soft_negative_first_half
+            prev_hard[1] = last_hard_negative_first_half   
+            print("FIRST")
+            print(prev_soft[0])
+            print("LAST")
+            print(prev_soft[1])  
+
+        prev_hard = current_hard
+        prev_soft = current_soft
+        current_soft = [-1, -1]
+        current_hard = [-1, -1]
+ 
+           
+
+        
+    exit(1)
+
+        # |-x---X--------X---x-----|------------y-----|
+
+        # giro 1
+        # prev_soft = [y1, x2]
+        # curr_soft = [y2, -1]
+
+        # giro 1
+        # prev_soft = [y0, x1]          [y0, x1]
+        # curr_soft = [y1, -1]
+        # next_soft = [-1, -1]
+
+        # giro 2
+        # prev_soft = [y1, x2]          [y0, x1]
+        # curr_soft = [y2, -1]
+        # next_soft = [-1, -1]
+
+        
+    #     top_ten = get_top_ten(group.copy())
+    #     min_df_empty = pd.concat([top_ten, min_df_empty], axis=1)
+
+    #     st.dataframe(min_df_empty, hide_index=True)
+    # st.dataframe(min_df_empty, hide_index=True)
+
+if max_temp_file is not None:
+    
+    max_df_gb_year, max_nan_temperature = clean_up_csv(max_temp_file)
+    
+    max_df_empty = pd.DataFrame()
 
     for _, group in min_df_gb_year:
-        print("WEEEEEEEEEE")
-        group["temp"] = group["temperature"].round().astype('Int64')
-        group_sorted = group.sort_values(by='temp')
-        top_ten = group_sorted.iloc[:10]
-        year = top_ten['date'].iloc[0].year
-        top_ten["date"] = top_ten["date"].dt.strftime('%m-%d')
-        top_ten.columns = pd.MultiIndex.from_product([[str(year)], top_ten.columns])
-        top_ten = top_ten.reset_index(drop=True)
-        df_empty = pd.concat([top_ten, df_empty], axis=1)
-        df_string = df_empty.to_string(header=True, index=False)
-
+        top_ten = get_top_ten(group.copy(), ascending=False)
+        max_df_empty = pd.concat([top_ten, max_df_empty], axis=1)
     
-    print(df_string)
+    st.dataframe(max_df_empty, hide_index=True)
     
-    st.table(df_empty)
-
 
 
 
