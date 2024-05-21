@@ -4,12 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-streamlit = "==1.34.0
+streamlit = "==1.34.0"
 matplotlib = "==3.9.0"
 vl-convert-python = "==1.4.0"
-
-[dev-packages]
 
 [requires]
 python_version = "3.10"
 python_full_version = "3.10.0"
+
+[dev-packages]
+ruff = "==0.4.4"
+black = "==24.4.2"
+pre-commit = "==3.7.1"

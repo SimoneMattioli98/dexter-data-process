@@ -1,0 +1,18 @@
+version: 3
+
+env:
+  PYENV: .venv
+  PYBIN: '{{.PYENV}}/bin'
+  PYTHON: '{{.PYBIN}}/python'
+  PRE_COMMIT: '{{.PYBIN}}/pre-commit'
+
+tasks:
+  run-linters:
+    deps: [ run-black, run-ruff ]
+
+  run-black:
+    cmds:
+      - .venv/Scripts/black --target-version py38 .
+  run-ruff:
+    cmds:
+      - .venv/Scripts/ruff --fix .
