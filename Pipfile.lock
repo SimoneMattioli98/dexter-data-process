@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "230cc9070694efcf81fbbe2744ae17662859520566822b3cd822a3fac4b99d32"
+            "sha256": "37dda2db7abca3233892fffbd51e4d412a5df03a73ffefb345effceaa8cfdde3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -218,6 +218,14 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==0.12.1"
+        },
+        "emoji": {
+            "hashes": [
+                "sha256:4aa0488817691aa58d83764b6c209f8a27c0b3ab3f89d1b8dceca1a62e4973eb",
+                "sha256:a00d62173bdadc2510967a381810101624a2f0986145b8da0cffa42e29430235"
+            ],
+            "index": "pypi",
+            "version": "==2.12.1"
         },
         "fonttools": {
             "hashes": [
@@ -996,11 +1004,11 @@
         },
         "typing-extensions": {
             "hashes": [
-                "sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0",
-                "sha256:c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a"
+                "sha256:8cbcdc8606ebcb0d95453ad7dc5065e6237b6aa230a31e81d0f440c30fed5fd8",
+                "sha256:b349c66bea9016ac22978d800cfff206d5f9816951f12a7d0ec5578b0a819594"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==4.11.0"
+            "version": "==4.12.0"
         },
         "tzdata": {
             "hashes": [
@@ -1283,11 +1291,11 @@
         },
         "typing-extensions": {
             "hashes": [
-                "sha256:83f085bd5ca59c80295fc2a82ab5dac679cbe02b9f33f7d83af68e241bea51b0",
-                "sha256:c1f94d72897edaf4ce775bb7558d5b79d8126906a14ea5ed1635921406c0387a"
+                "sha256:8cbcdc8606ebcb0d95453ad7dc5065e6237b6aa230a31e81d0f440c30fed5fd8",
+                "sha256:b349c66bea9016ac22978d800cfff206d5f9816951f12a7d0ec5578b0a819594"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==4.11.0"
+            "version": "==4.12.0"
         },
         "virtualenv": {
             "hashes": [

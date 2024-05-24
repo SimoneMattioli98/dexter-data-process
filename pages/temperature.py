@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-
+import emoji
 from utils import (
     clean_up_csv,
     get_colds,
@@ -8,8 +8,10 @@ from utils import (
     spring_autumn_critical_temperature,
 )
 
-st.set_page_config(page_title="Temperature", page_icon="📊")
-st.title("📊 Temperature")
+thermometer_emoji = emoji.emojize(':thermometer:')
+
+st.set_page_config(page_title="Temperature", page_icon=thermometer_emoji)
+st.title(thermometer_emoji + " Temperature")
 
 st.subheader("Select a csv file with minimum temperatures...")
 min_temp_file = st.file_uploader("Choose a file", key=1)
