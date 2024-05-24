@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def clean_up_csv(file):
+def clean_up_temperature_csv(file):
     df = pd.read_csv(file)  # Load data
     del df["date_end"]
     df.rename(columns={"date_start": "date"}, inplace=True)
@@ -11,6 +11,65 @@ def clean_up_csv(file):
     df.dropna()
     df.loc[:, "temperature"] = np.round(df["temperature"].values, 1)
     return df, df.groupby(pd.PeriodIndex(df["date"], freq="Y")), nan_temperature
+
+
+def clean_up_wind_csv(wind_speed_file, wind_direction_file):
+    wind_speed_df = pd.read_csv(wind_speed_file)
+    wind_direction_df = pd.read_csv(wind_direction_file)
+    del wind_speed_df["date_end"]
+    del wind_direction_df["date_end"]
+    wind_speed_df.rename(columns={"date_start": "date"}, inplace=True)
+    wind_direction_df.rename(columns={"date_start": "date"}, inplace=True)
+    wind_speed_df["date"] = pd.to_datetime(wind_speed_df["date"]).dt.date
+    wind_direction_df["date"] = pd.to_datetime(wind_direction_df["date"]).dt.date
+    merged_df = pd.merge(wind_speed_df, wind_direction_df, on="date")
+    nan_wind_info: int = merged_df.isna().sum()
+    merged_df.dropna()
+    merged_df["direction"] = merged_df["direction"].apply(wind_rose)
+
+    return merged_df, nan_wind_info
+
+
+def wind_rose(degree):
+    if (degree >= 0 and degree < 22.5) or (degree >= 337.5 and degree <= 359):
+        return "N"
+    elif degree >= 22.5 and degree < 67.5:
+        return "NE"
+    elif degree >= 67.5 and degree < 112.5:
+        return "E"
+    elif degree >= 112.5 and degree < 157.5:
+        return "SE"
+    elif degree >= 157.5 and degree < 202.5:
+        return "S"
+    elif degree >= 202.5 and degree < 247.5:
+        return "SW"
+    elif degree >= 247.5 and degree < 292.5:
+        return "W"
+    elif degree >= 292.5 and degree < 337.5:
+        return "NW"
+
+
+def beaufort_value(speed_meter_per_second):
+    if speed_meter_per_second >= 0 and speed_meter_per_second <= 1.5:
+        return 1
+    elif speed_meter_per_second >= 1.6 and speed_meter_per_second <= 3.4:
+        return 2
+    elif speed_meter_per_second >= 3.5 and speed_meter_per_second <= 5.4:
+        return 3
+    elif speed_meter_per_second >= 5.5 and speed_meter_per_second <= 7.9:
+        return 4
+    elif speed_meter_per_second >= 8 and speed_meter_per_second <= 10.7:
+        return 5
+    elif speed_meter_per_second >= 10.8 and speed_meter_per_second <= 13.8:
+        return 6
+    elif speed_meter_per_second >= 13.9 and speed_meter_per_second <= 17.1:
+        return 7
+    elif speed_meter_per_second >= 17.2 and speed_meter_per_second <= 20.7:
+        return 8
+    elif speed_meter_per_second >= 20.8 and speed_meter_per_second <= 24.4:
+        return 9
+    elif speed_meter_per_second >= 24.5 and speed_meter_per_second <= 28.4:
+        return 10
 
 
 def rename_index(val):

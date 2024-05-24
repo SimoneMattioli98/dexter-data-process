@@ -1,14 +1,15 @@
+import emoji
 import pandas as pd
 import streamlit as st
-import emoji
+
 from utils import (
-    clean_up_csv,
+    clean_up_temperature_csv,
     get_colds,
     get_top_ten,
     spring_autumn_critical_temperature,
 )
 
-thermometer_emoji = emoji.emojize(':thermometer:')
+thermometer_emoji = emoji.emojize(":thermometer:")
 
 st.set_page_config(page_title="Temperature", page_icon=thermometer_emoji)
 st.title(thermometer_emoji + " Temperature")
@@ -17,7 +18,9 @@ st.subheader("Select a csv file with minimum temperatures...")
 min_temp_file = st.file_uploader("Choose a file", key=1)
 
 if min_temp_file is not None:
-    min_df, min_df_gb_year, min_nan_temperature = clean_up_csv(min_temp_file)
+    min_df, min_df_gb_year, min_nan_temperature = clean_up_temperature_csv(
+        min_temp_file
+    )
     soft_cold, hard_cold = get_colds(min_df)
     del min_df["year_index"]
     min_df_empty = pd.DataFrame()
@@ -71,7 +74,9 @@ max_temp_file = st.file_uploader("Choose a file", key=2)
 
 if max_temp_file is not None:
 
-    max_df, max_df_gb_year, max_nan_temperature = clean_up_csv(max_temp_file)
+    max_df, max_df_gb_year, max_nan_temperature = clean_up_temperature_csv(
+        max_temp_file
+    )
 
     max_df_empty = pd.DataFrame()
 
