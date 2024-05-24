@@ -1,104 +1,83 @@
 import pandas as pd
 import streamlit as st
 
-from utils import clean_up_csv, get_cold_dates, get_top_ten
+from utils import (
+    clean_up_csv,
+    get_colds,
+    get_top_ten,
+    spring_autumn_critical_temperature,
+)
 
 st.set_page_config(page_title="Temperature", page_icon="📊")
 st.title("📊 Temperature")
 
 st.subheader("Select a csv file with minimum temperatures...")
 min_temp_file = st.file_uploader("Choose a file", key=1)
-st.subheader("Select a csv file with maximum temperatures...")
-max_temp_file = st.file_uploader("Choose a file", key=2)
-st.subheader("Select a csv file with  medium temperatures...")
-mean_temp_file = st.file_uploader("Choose a file", key=3)
 
 if min_temp_file is not None:
-    min_df_gb_year, min_nan_temperature = clean_up_csv(min_temp_file)
-
+    min_df, min_df_gb_year, min_nan_temperature = clean_up_csv(min_temp_file)
+    soft_cold, hard_cold = get_colds(min_df)
+    del min_df["year_index"]
     min_df_empty = pd.DataFrame()
 
-    current_soft = [-1, -1]
-    current_hard = [-1, -1]
-    prev_soft = [-1, -1]
-    prev_hard = [-1, -1]
-    first_soft_negative_second_half = 1
-    first_hard_negative_second_half = 1
-    last_soft_negative_second_half = 1
-    last_hard_negative_second_half = 1
-    first_soft_negative_first_half = 1
-    first_hard_negative_first_half = 1
-    last_soft_negative_first_half = 1
-    last_hard_negative_first_half = 1
+    first_15_temps_df = pd.DataFrame(
+        index=min_df_gb_year.groups.keys(),
+        columns=["Spring Date 15", "Autumn Date <15"],
+    )
 
-    last_year_last_soft_cold = 1
-    last_year_last_hard_cold = 1
+    for i, (year, group) in enumerate(min_df_gb_year):
+        first_spring_temp_15, first_autumn_temp_below_15 = (
+            spring_autumn_critical_temperature(group)
+        )
 
-    for i, (_, group) in enumerate(min_df_gb_year):
-        first_half = group.iloc[:180].dropna()
-        second_half = group.iloc[180:].dropna()
+        first_15_temps_df.loc[year, "Spring Date 15"] = (
+            (pd.to_datetime(first_spring_temp_15["date"]).dt.date.iloc)[0]
+            if not first_spring_temp_15.empty
+            else None
+        )
+        first_15_temps_df.loc[year, "Autumn Date <15"] = (
+            (pd.to_datetime(first_autumn_temp_below_15["date"]).dt.date.iloc)[0]
+            if not first_autumn_temp_below_15.empty
+            else None
+        )
 
-        if second_half.size > 0:
-            (
-                first_soft_negative_second_half,
-                last_soft_negative_second_half,
-                first_hard_negative_second_half,
-                last_hard_negative_second_half,
-            ) = get_cold_dates(second_half)
+        top_ten = get_top_ten(group.copy())
+        min_df_empty = pd.concat([top_ten, min_df_empty], axis=1)
 
-        if first_half.size > 0:
-            (
-                first_soft_negative_first_half,
-                last_soft_negative_first_half,
-                first_hard_negative_first_half,
-                last_hard_negative_first_half,
-            ) = get_cold_dates(first_half)
+    col1, col2 = st.columns(2)
 
-        current_soft[0] = first_soft_negative_second_half
-        current_hard[0] = first_hard_negative_second_half
-        if i != 0:
-            prev_soft[1] = last_soft_negative_first_half
-            prev_hard[1] = last_hard_negative_first_half
+    with col1:
+        st.text("SOFT COLD")
+        st.dataframe(soft_cold)
 
-        prev_hard = current_hard
-        prev_soft = current_soft
-        current_soft = [-1, -1]
-        current_hard = [-1, -1]
+    with col2:
+        st.text("HARD COLD")
+        st.dataframe(hard_cold)
 
-    exit(1)
+    st.divider()
 
-    # |-x---X--------X---x-----|------------y-----|
+    st.text("15° TEMPERATURES IN SPRING/AUTUMN ")
+    st.dataframe(first_15_temps_df)
 
-    # giro 1
-    # prev_soft = [y1, x2]
-    # curr_soft = [y2, -1]
+    st.divider()
+    st.text("TOP TEN COLDEST TEMPERATURE PER YEAR")
+    st.dataframe(min_df_empty, hide_index=True)
 
-    # giro 1
-    # prev_soft = [y0, x1]          [y0, x1]
-    # curr_soft = [y1, -1]
-    # next_soft = [-1, -1]
 
-    # giro 2
-    # prev_soft = [y1, x2]          [y0, x1]
-    # curr_soft = [y2, -1]
-    # next_soft = [-1, -1]
-
-    #     top_ten = get_top_ten(group.copy())
-    #     min_df_empty = pd.concat([top_ten, min_df_empty], axis=1)
-
-    #     st.dataframe(min_df_empty, hide_index=True)
-    # st.dataframe(min_df_empty, hide_index=True)
+st.subheader("Select a csv file with maximum temperatures...")
+max_temp_file = st.file_uploader("Choose a file", key=2)
 
 if max_temp_file is not None:
 
-    max_df_gb_year, max_nan_temperature = clean_up_csv(max_temp_file)
+    max_df, max_df_gb_year, max_nan_temperature = clean_up_csv(max_temp_file)
 
     max_df_empty = pd.DataFrame()
 
-    for _, group in min_df_gb_year:
+    for _, group in max_df_gb_year:
         top_ten = get_top_ten(group.copy(), ascending=False)
         max_df_empty = pd.concat([top_ten, max_df_empty], axis=1)
 
+    st.text("TOP TEN HOTTEST TEMPERATURE PER YEAR")
     st.dataframe(max_df_empty, hide_index=True)
 
 

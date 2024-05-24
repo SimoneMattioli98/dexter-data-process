@@ -12,7 +12,7 @@ tasks:
 
   run-black:
     cmds:
-      - .venv/Scripts/black --target-version py38 .
+      - .venv/bin/black --target-version py38 .
   run-ruff:
     cmds:
-      - .venv/Scripts/ruff --fix .
+      - .venv/bin/ruff --fix .
