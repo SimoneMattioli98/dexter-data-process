@@ -19,10 +19,7 @@ def clean_up_temperature_csv(file):
 
     df["temperature"] = np.round(df["temperature"], 1)
 
-    df["date_year"] = pd.to_datetime(df["date"], format="%d/%m/%Y").dt.to_period("Y")
-    grouped = df.groupby("date_year")
-
-    return df.drop(columns=["date_year"]), grouped, nan_temperature
+    return df, nan_temperature
 
 
 def clean_up_rain_csv(file):

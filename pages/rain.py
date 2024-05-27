@@ -40,8 +40,9 @@ if rain_file is not None:
     )
 
     # Raggruppa per year e month e calcola la somma delle rain
-    montly_accumulations = rain_df.groupby(["year", "month"])
-    ["rain"].sum().reset_index()
+    montly_accumulations = (
+        rain_df.groupby(["year", "month"])["rain"].sum().reset_index()
+    )
     montly_accumulations = order_months(montly_accumulations)
 
     # Raggruppa per year e calcola la somma delle rain

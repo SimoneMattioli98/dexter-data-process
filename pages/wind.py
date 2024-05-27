@@ -22,6 +22,25 @@ wind_direction_file = st.file_uploader("Choose a file", key=2)
 if wind_direction_file is not None and wind_speed_file is not None:
     wind_df, nan_wind_info = clean_up_wind_csv(wind_speed_file, wind_direction_file)
 
+    wind_df["year"] = pd.to_datetime(wind_df["date"], format="%d/%m/%Y").dt.year
+
+    # Ottieni l'elenco degli anni disponibili nel dataset
+    available_years = sorted(wind_df["year"].unique())
+
+    # Seleziona gli anni da visualizzare con uno slider
+    selected_years = st.slider(
+        "Select years to display",
+        min_value=min(available_years),
+        max_value=max(available_years),
+        value=(min(available_years), max(available_years)),
+    )
+
+    wind_df = wind_df[
+        wind_df["year"].isin(range(selected_years[0], selected_years[1] + 1))
+    ]
+
+    del wind_df["year"]
+
     st.text("NUMBER OF WINDY DAYS DIVIDED BY DIRECTION AND SPEED IN M/S")
     beaufort_table = pd.crosstab(wind_df["direction"], wind_df["beaufort"])
 
