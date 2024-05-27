@@ -17,3 +17,10 @@ st.title("📊 Dexter data processing")
 
 if st.button("Temperature"):
     st.switch_page("pages/temperature.py")
+
+if st.button("Wind"):
+    st.switch_page("pages/wind.py")
+
+
+if st.button("Rain"):
+    st.switch_page("pages/rain.py")

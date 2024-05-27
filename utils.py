@@ -1,32 +1,115 @@
+import io
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import seaborn as sns
 
 
 def clean_up_temperature_csv(file):
-    # Carica i dati
     df = pd.read_csv(file)
-
-    # Elimina la colonna 'date_end' e rinomina 'date_start' in 'date'
     df = df.drop(columns=["date_end"]).rename(columns={"date_start": "date"})
 
-    # Converte la colonna 'date' in datetime e poi nel formato italiano 'gg/mm/aaaa'
     df["date"] = pd.to_datetime(df["date"]).dt.strftime("%d/%m/%Y")
 
-    # Conta i valori NaN nella colonna 'temperature'
     nan_temperature = df["temperature"].isna().sum()
 
-    # Rimuove le righe con valori NaN nella colonna 'temperature'
     df = df.dropna(subset=["temperature"])
 
-    # Arrotonda i valori della colonna 'temperature' a una cifra decimale
     df["temperature"] = np.round(df["temperature"], 1)
 
-    # Raggruppa i dati per anno
     df["date_year"] = pd.to_datetime(df["date"], format="%d/%m/%Y").dt.to_period("Y")
     grouped = df.groupby("date_year")
 
     return df.drop(columns=["date_year"]), grouped, nan_temperature
+
+
+def clean_up_rain_csv(file):
+    df = pd.read_csv(file)
+    df = df.drop(columns=["date_end"]).rename(columns={"date_start": "date"})
+
+    df["date"] = pd.to_datetime(df["date"]).dt.strftime("%d/%m/%Y")
+
+    nan_temperature = df["rain"].isna().sum()
+
+    df = df.dropna(subset=["rain"])
+
+    return df, nan_temperature
+
+
+def create_download_link(fig):
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png")
+    buf.seek(0)
+    return buf
+
+
+# Funzione per aggiungere annotazioni sulle barre con rotazione
+def add_annotations(ax, rotation, offset):
+    for p in ax.patches:
+        ax.annotate(
+            f"{p.get_height():.1f}",
+            (p.get_x() + p.get_width() / 2.0, p.get_height()),
+            ha="center",
+            va="bottom",
+            rotation=rotation,
+            xytext=(0, offset),
+            textcoords="offset points",
+            fontsize=10,
+            color="black",
+            weight="bold",
+        )
+def plot_monthly_rain(accumuli_mensili, selected_years, title):
+    fig, ax = plt.subplots(figsize=(10, 6))
+    accumuli_mensili_selected = accumuli_mensili[accumuli_mensili['year'].isin(selected_years)]
+    accumuli_mensili_pivot = accumuli_mensili_selected.pivot(
+        index="month", columns="year", values="rain"
+    )
+    accumuli_mensili_pivot.plot(kind="bar", ax=ax)
+    ax.set_xlabel("Month")
+    ax.set_ylabel("Rain (mm)")
+    ax.set_title(title, fontsize=16, y=1.10)
+    ax.legend(title="Year")
+    sns.despine()
+    add_annotations(ax, rotation=90, offset=10)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=0, fontsize=12)
+    ax.set_yticklabels(ax.get_yticklabels(), fontsize=12)
+    return fig
+
+def plot_annual_rain(accumuli_annuali, selected_years, title):
+    fig, ax = plt.subplots(figsize=(10, 6))
+    accumuli_annuali_selected = accumuli_annuali[accumuli_annuali['year'].isin(selected_years)]
+    sns.barplot(x="year", y="rain", data=accumuli_annuali_selected, ax=ax, palette="viridis")
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Rain (mm)")
+    ax.set_title(title, fontsize=16, y=1.10)
+    sns.despine()
+    add_annotations(ax, rotation=90, offset=10)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=0, fontsize=12)
+    ax.set_yticklabels(ax.get_yticklabels(), fontsize=12)
+    return fig
+
+def order_months(df):
+    # Ordina i dati per numero del mese
+    df["month"] = pd.Categorical(
+        df["month"],
+        categories=[
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ],
+        ordered=True,
+    )
+    return df.sort_values(by=["month"])
 
 
 def build_wind_graph(sums_direction_df):
