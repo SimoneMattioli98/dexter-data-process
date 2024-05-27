@@ -35,7 +35,6 @@ if min_temp_file is not None:
             spring_autumn_critical_temperature(first_15_temps_df, year, group)
         )
 
-
         top_ten = get_top_ten(group.copy(), "temperature")
         min_df_empty = pd.concat([top_ten, min_df_empty], axis=1)
 

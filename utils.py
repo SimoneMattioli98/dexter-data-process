@@ -33,43 +33,52 @@ def build_wind_graph(sums_direction_df):
     graph = go.Figure()
 
     colors = [
-        'rgba(255, 0, 0, 0.7)', 'rgba(0, 255, 0, 0.7)', 'rgba(0, 0, 255, 0.7)',
-        'rgba(255, 255, 0, 0.7)', 'rgba(255, 165, 0, 0.7)', 'rgba(128, 0, 128, 0.7)',
-        'rgba(0, 255, 255, 0.7)', 'rgba(255, 192, 203, 0.7)']
+        "rgba(255, 0, 0, 0.7)",
+        "rgba(0, 255, 0, 0.7)",
+        "rgba(0, 0, 255, 0.7)",
+        "rgba(255, 255, 0, 0.7)",
+        "rgba(255, 165, 0, 0.7)",
+        "rgba(128, 0, 128, 0.7)",
+        "rgba(0, 255, 255, 0.7)",
+        "rgba(255, 192, 203, 0.7)",
+    ]
 
-    graph.add_trace(go.Barpolar(
-        r=sums_direction_df['percentage'],
-        theta=sums_direction_df["direction"],
-        marker_color=colors
-    ))
+    graph.add_trace(
+        go.Barpolar(
+            r=sums_direction_df["percentage"],
+            theta=sums_direction_df["direction"],
+            marker_color=colors,
+        )
+    )
 
     graph.update_layout(
-        template='plotly_white',
+        template="plotly_white",
         polar=dict(
             radialaxis=dict(
-                ticks='',
+                ticks="",
                 showticklabels=True,
                 tickfont=dict(
                     size=15,  # Adjust the font size of the tick labels
-                    color='black'  # Adjust the color of the tick labels
+                    color="black",  # Adjust the color of the tick labels
                 ),
-                gridcolor='rgba(0, 0, 0, 0.5)',  # Darker grid color
+                gridcolor="rgba(0, 0, 0, 0.5)",  # Darker grid color
                 linewidth=2,
-                linecolor='black',
+                linecolor="black",
             ),
             angularaxis=dict(
                 tickfont=dict(
                     size=15,  # Adjust the font size of the cardinal directions
-                    color='black'  # Adjust the color of the cardinal directions
+                    color="black",  # Adjust the color of the cardinal directions
                 ),
-                linecolor='black',  # Set line color for angular axis
-                linewidth=2
-            )
+                linecolor="black",  # Set line color for angular axis
+                linewidth=2,
+            ),
         ),
         width=800,  # Adjust the width of the plot
-        height=800
+        height=800,
     )
     return graph
+
 
 def clean_up_wind_csv(wind_speed_file, wind_direction_file):
     wind_speed_df = pd.read_csv(wind_speed_file)
@@ -107,10 +116,14 @@ def wind_rose(degree):
     elif degree >= 292.5 and degree < 337.5:
         return "NW"
 
+
 def order_cardinal_points(df):
-    ordered_cardinals = ['E', 'NE', 'N', 'NW', 'W', 'SW', 'S', 'SE']
-    df['direction'] = pd.Categorical(df['direction'], categories=ordered_cardinals, ordered=True)
-    return df.sort_values('direction')
+    ordered_cardinals = ["E", "NE", "N", "NW", "W", "SW", "S", "SE"]
+    df["direction"] = pd.Categorical(
+        df["direction"], categories=ordered_cardinals, ordered=True
+    )
+    return df.sort_values("direction")
+
 
 def beaufort_value(speed_meter_per_second):
     if speed_meter_per_second >= 0 and speed_meter_per_second <= 1.5:
@@ -152,13 +165,11 @@ def get_colds(df):
     soft_cold_mask = (df["temperature"] >= -2) & (df["temperature"] < 0)
     hard_cold_mask = df["temperature"] < -2
 
-    # Raggruppa per 'year_index' e calcola i valori minimi e massimi delle date per soft cold
     soft_cold = df[soft_cold_mask].groupby("year_index")["date"].agg(["min", "max"])
     soft_cold.columns = ["first_soft_cold", "last_soft_cold"]
     soft_cold["first_soft_cold"] = soft_cold["first_soft_cold"].dt.strftime("%d/%m/%Y")
     soft_cold["last_soft_cold"] = soft_cold["last_soft_cold"].dt.strftime("%d/%m/%Y")
 
-    # Raggruppa per 'year_index' e calcola i valori minimi e massimi delle date per hard cold
     hard_cold = df[hard_cold_mask].groupby("year_index")["date"].agg(["min", "max"])
     hard_cold.columns = ["first_hard_cold", "last_hard_cold"]
     hard_cold["first_hard_cold"] = hard_cold["first_hard_cold"].dt.strftime("%d/%m/%Y")
@@ -170,14 +181,6 @@ def get_colds(df):
 
     return soft_cold, hard_cold
 
-def get_current_year(date):
-    year = date.year
-    start_date = pd.Timestamp(year=year, month=6, day=15)
-    if date >= start_date:
-        return year
-    else:
-        return year - 1
-
 
 def get_top_ten(df, key, ascending=True):
     top_ten = df.sort_values(by=key, ascending=ascending).head(10)
@@ -186,7 +189,9 @@ def get_top_ten(df, key, ascending=True):
     year = pd.to_datetime(top_ten["date"], format="%d/%m/%Y").iloc[0].year
 
     # Converti le date nel formato italiano 'gg/mm'
-    top_ten["date"] = pd.to_datetime(top_ten["date"], format="%d/%m/%Y").dt.strftime("%d/%m/%Y")
+    top_ten["date"] = pd.to_datetime(top_ten["date"], format="%d/%m/%Y").dt.strftime(
+        "%d/%m/%Y"
+    )
 
     # Converti il valore chiave in stringa, se necessario
     top_ten[key] = top_ten[key].astype(str)
@@ -201,8 +206,9 @@ def get_top_ten(df, key, ascending=True):
 
 
 def spring_autumn_critical_temperature(first_15_temps_df, year, df):
-    # Estrai il mese e il giorno come stringa nel formato "dd/mm/yyyy"
-    df["month_day"] = pd.to_datetime(df["date"], format="%d/%m/%Y").dt.strftime("%d/%m/%Y")
+    df["month_day"] = pd.to_datetime(df["date"], format="%d/%m/%Y").dt.strftime(
+        "%d/%m/%Y"
+    )
 
     # Definisci i periodi di primavera e autunno
     spring_start = "01/01"
@@ -221,7 +227,15 @@ def spring_autumn_critical_temperature(first_15_temps_df, year, df):
     first_autumn_temp_below_15 = autumn_df[autumn_df["temperature"] < 15].head(1)
 
     # Aggiorna il DataFrame first_15_temps_df
-    first_15_temps_df.loc[year, "Spring Date 15"] = first_spring_temp_15["date"].iloc[0] if not first_spring_temp_15.empty else None
-    first_15_temps_df.loc[year, "Autumn Date <15"] = first_autumn_temp_below_15["date"].iloc[0] if not first_autumn_temp_below_15.empty else None
+    first_15_temps_df.loc[year, "Spring Date 15"] = (
+        (first_spring_temp_15["date"].iloc)[0]
+        if not first_spring_temp_15.empty
+        else None
+    )
+    first_15_temps_df.loc[year, "Autumn Date <15"] = (
+        (first_autumn_temp_below_15["date"].iloc)[0]
+        if not first_autumn_temp_below_15.empty
+        else None
+    )
 
     return first_spring_temp_15, first_autumn_temp_below_15

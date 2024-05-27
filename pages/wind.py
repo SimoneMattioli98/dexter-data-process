@@ -2,7 +2,12 @@ import emoji
 import pandas as pd
 import streamlit as st
 
-from utils import clean_up_wind_csv, order_cardinal_points, build_wind_graph, get_top_ten
+from utils import (
+    build_wind_graph,
+    clean_up_wind_csv,
+    get_top_ten,
+    order_cardinal_points,
+)
 
 wind_emoji = emoji.emojize(":wind_face:")
 st.set_page_config(layout="wide", page_title="Wind", page_icon=wind_emoji)
@@ -18,15 +23,14 @@ if wind_direction_file is not None and wind_speed_file is not None:
     wind_df, nan_wind_info = clean_up_wind_csv(wind_speed_file, wind_direction_file)
 
     st.text("NUMBER OF WINDY DAYS DIVIDED BY DIRECTION AND SPEED IN M/S")
-    beaufort_table = pd.crosstab(wind_df['direction'], wind_df['beaufort'])
+    beaufort_table = pd.crosstab(wind_df["direction"], wind_df["beaufort"])
 
-    sums_speed = beaufort_table.sum().rename('Total_speed')
-    sums_direction = beaufort_table.sum(axis=1).rename('Total_direction')
-
+    sums_speed = beaufort_table.sum().rename("Total_speed")
+    sums_direction = beaufort_table.sum(axis=1).rename("Total_direction")
 
     def highlight_max(s):
         is_max = s == s.max()
-        return ['background-color: yellow' if v else '' for v in is_max]
+        return ["background-color: yellow" if v else "" for v in is_max]
 
     beaufort_table = beaufort_table.style.apply(highlight_max, axis=0)
 
@@ -38,8 +42,10 @@ if wind_direction_file is not None and wind_speed_file is not None:
     sums_direction_df = sums_direction_df.reset_index()
 
     sums_direction_df = order_cardinal_points(sums_direction_df)
-    total = sums_direction_df['Total_direction'].sum()
-    sums_direction_df['percentage'] = (sums_direction_df['Total_direction'] / total) * 100
+    total = sums_direction_df["Total_direction"].sum()
+    sums_direction_df["percentage"] = (
+        sums_direction_df["Total_direction"] / total
+    ) * 100
 
     graph = build_wind_graph(sums_direction_df)
 
@@ -47,10 +53,14 @@ if wind_direction_file is not None and wind_speed_file is not None:
 
     col1, col2, col3 = st.columns(3)
 
-    sums_speed_df.set_index('beaufort', inplace=True)
+    sums_speed_df.set_index("beaufort", inplace=True)
 
-    sums_speed_df = sums_speed_df.style.apply(highlight_max, axis=0, subset=["Total_speed"])
-    sums_direction_df = sums_direction_df.style.apply(highlight_max, axis=0, subset=["Total_direction"])
+    sums_speed_df = sums_speed_df.style.apply(
+        highlight_max, axis=0, subset=["Total_speed"]
+    )
+    sums_direction_df = sums_direction_df.style.apply(
+        highlight_max, axis=0, subset=["Total_direction"]
+    )
 
     with col1:
         st.text("Most popular wind speed")
@@ -62,20 +72,15 @@ if wind_direction_file is not None and wind_speed_file is not None:
 
     with col3:
         st.text("Top ten wind strength")
-        column_names = ['date', 'speed']
+        column_names = ["date", "speed"]
 
-        df_no_columns = get_top_ten(wind_df.loc[:, ["date", "speed"]],
-                                    "speed", ascending=False).values
+        df_no_columns = get_top_ten(
+            wind_df.loc[:, ["date", "speed"]], "speed", ascending=False
+        ).values
 
         df_no_columns_with_names = pd.DataFrame(df_no_columns, columns=column_names)
 
         st.dataframe(df_no_columns_with_names)
 
-    st.text('Wind percentage')
+    st.text("Wind percentage")
     st.plotly_chart(graph)
-
-
-
-
-
-
