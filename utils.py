@@ -1,4 +1,5 @@
 import io
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -59,9 +60,13 @@ def add_annotations(ax, rotation, offset):
             color="black",
             weight="bold",
         )
+
+
 def plot_monthly_rain(accumuli_mensili, selected_years, title):
     fig, ax = plt.subplots(figsize=(10, 6))
-    accumuli_mensili_selected = accumuli_mensili[accumuli_mensili['year'].isin(selected_years)]
+    accumuli_mensili_selected = accumuli_mensili[
+        accumuli_mensili["year"].isin(selected_years)
+    ]
     accumuli_mensili_pivot = accumuli_mensili_selected.pivot(
         index="month", columns="year", values="rain"
     )
@@ -76,10 +81,15 @@ def plot_monthly_rain(accumuli_mensili, selected_years, title):
     ax.set_yticklabels(ax.get_yticklabels(), fontsize=12)
     return fig
 
+
 def plot_annual_rain(accumuli_annuali, selected_years, title):
     fig, ax = plt.subplots(figsize=(10, 6))
-    accumuli_annuali_selected = accumuli_annuali[accumuli_annuali['year'].isin(selected_years)]
-    sns.barplot(x="year", y="rain", data=accumuli_annuali_selected, ax=ax, palette="viridis")
+    accumuli_annuali_selected = accumuli_annuali[
+        accumuli_annuali["year"].isin(selected_years)
+    ]
+    sns.barplot(
+        x="year", y="rain", data=accumuli_annuali_selected, ax=ax, palette="viridis"
+    )
     ax.set_xlabel("Year")
     ax.set_ylabel("Rain (mm)")
     ax.set_title(title, fontsize=16, y=1.10)
@@ -88,6 +98,7 @@ def plot_annual_rain(accumuli_annuali, selected_years, title):
     ax.set_xticklabels(ax.get_xticklabels(), rotation=0, fontsize=12)
     ax.set_yticklabels(ax.get_yticklabels(), fontsize=12)
     return fig
+
 
 def order_months(df):
     # Ordina i dati per numero del mese
