@@ -8,6 +8,7 @@ streamlit = "==1.34.0"
 matplotlib = "==3.9.0"
 vl-convert-python = "==1.4.0"
 emoji = "*"
+plotly = "*"
 
 [requires]
 python_version = "3.10"

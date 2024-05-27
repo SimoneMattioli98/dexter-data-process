@@ -11,7 +11,7 @@ from utils import (
 
 thermometer_emoji = emoji.emojize(":thermometer:")
 
-st.set_page_config(page_title="Temperature", page_icon=thermometer_emoji)
+st.set_page_config(layout="wide", page_title="Temperature", page_icon=thermometer_emoji)
 st.title(thermometer_emoji + " Temperature")
 
 st.subheader("Select a csv file with minimum temperatures...")
@@ -32,24 +32,14 @@ if min_temp_file is not None:
 
     for i, (year, group) in enumerate(min_df_gb_year):
         first_spring_temp_15, first_autumn_temp_below_15 = (
-            spring_autumn_critical_temperature(group)
+            spring_autumn_critical_temperature(first_15_temps_df, year, group)
         )
 
-        first_15_temps_df.loc[year, "Spring Date 15"] = (
-            (pd.to_datetime(first_spring_temp_15["date"]).dt.date.iloc)[0]
-            if not first_spring_temp_15.empty
-            else None
-        )
-        first_15_temps_df.loc[year, "Autumn Date <15"] = (
-            (pd.to_datetime(first_autumn_temp_below_15["date"]).dt.date.iloc)[0]
-            if not first_autumn_temp_below_15.empty
-            else None
-        )
 
-        top_ten = get_top_ten(group.copy())
+        top_ten = get_top_ten(group.copy(), "temperature")
         min_df_empty = pd.concat([top_ten, min_df_empty], axis=1)
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.text("SOFT COLD")
@@ -59,10 +49,9 @@ if min_temp_file is not None:
         st.text("HARD COLD")
         st.dataframe(hard_cold)
 
-    st.divider()
-
-    st.text("15° TEMPERATURES IN SPRING/AUTUMN ")
-    st.dataframe(first_15_temps_df)
+    with col3:
+        st.text("15° TEMPERATURES IN SPRING/AUTUMN ")
+        st.dataframe(first_15_temps_df)
 
     st.divider()
     st.text("TOP TEN COLDEST TEMPERATURE PER YEAR")
@@ -81,7 +70,7 @@ if max_temp_file is not None:
     max_df_empty = pd.DataFrame()
 
     for _, group in max_df_gb_year:
-        top_ten = get_top_ten(group.copy(), ascending=False)
+        top_ten = get_top_ten(group.copy(), "temperature", ascending=False)
         max_df_empty = pd.concat([top_ten, max_df_empty], axis=1)
 
     st.text("TOP TEN HOTTEST TEMPERATURE PER YEAR")
