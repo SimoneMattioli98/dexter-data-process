@@ -119,7 +119,8 @@ def order_months(df):
     )
     return df.sort_values(by=["month"])
 
-
+def translate(key, lang):
+    return translations[lang].get(key, key)
 def build_wind_graph(sums_direction_df):
     graph = go.Figure()
 
