@@ -41,7 +41,7 @@ if wind_direction_file is not None and wind_speed_file is not None:
 
     del wind_df["year"]
 
-    st.text("NUMBER OF WINDY DAYS DIVIDED BY DIRECTION AND SPEED IN M/S")
+    st.subheader("Number of windy days divided by direction and speed in m/s")
     beaufort_table = pd.crosstab(wind_df["direction"], wind_df["beaufort"])
 
     sums_speed = beaufort_table.sum().rename("Total_speed")
@@ -82,15 +82,15 @@ if wind_direction_file is not None and wind_speed_file is not None:
     )
 
     with col1:
-        st.text("Most popular wind speed")
+        st.subheader("Most popular wind speed")
         st.dataframe(sums_speed_df)
 
     with col2:
-        st.text("Most popular wind direction")
+        st.subheader("Most popular wind direction")
         st.dataframe(sums_direction_df)
 
     with col3:
-        st.text("Top ten wind strength")
+        st.subheader("Top ten wind strength")
         column_names = ["date", "speed"]
 
         df_no_columns = get_top_ten(
@@ -101,5 +101,5 @@ if wind_direction_file is not None and wind_speed_file is not None:
 
         st.dataframe(df_no_columns_with_names)
 
-    st.text("Wind percentage")
+    st.subheader("Wind percentage graph")
     st.plotly_chart(graph)

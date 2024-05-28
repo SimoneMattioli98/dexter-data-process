@@ -66,19 +66,19 @@ if min_temp_file is not None:
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.text("SOFT COLD")
+        st.subheader("Soft cold")
         st.dataframe(soft_cold)
 
     with col2:
-        st.text("HARD COLD")
+        st.subheader("Hard cold")
         st.dataframe(hard_cold)
 
     with col3:
-        st.text("15° TEMPERATURES IN SPRING/AUTUMN ")
+        st.subheader("15° temperature in spring/autumn")
         st.dataframe(first_15_temps_df)
 
     st.divider()
-    st.text("TOP TEN COLDEST TEMPERATURE PER YEAR")
+    st.subheader("Top 10 coldest temperatures per year")
     st.dataframe(min_df_empty, hide_index=True)
 
 
@@ -121,5 +121,5 @@ if max_temp_file is not None:
         top_ten = get_top_ten(group.copy(), "temperature", ascending=False)
         max_df_empty = pd.concat([top_ten, max_df_empty], axis=1)
 
-    st.text("TOP TEN HOTTEST TEMPERATURE PER YEAR")
+    st.subheader("Top 10 hottest temperatures per year")
     st.dataframe(max_df_empty, hide_index=True)
