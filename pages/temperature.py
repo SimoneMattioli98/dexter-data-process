@@ -4,15 +4,21 @@ import streamlit as st
 
 from utils import (
     clean_up_temperature_csv,
-    get_colds,
+    get_frosts,
     get_top_ten,
     spring_autumn_critical_temperature,
 )
 
 thermometer_emoji = emoji.emojize(":thermometer:")
-
 st.set_page_config(layout="wide", page_title="Temperature", page_icon=thermometer_emoji)
 st.title(thermometer_emoji + " Temperature")
+
+with st.expander("About this app"):
+    # Load Markdown content from file
+    with open("markdown/about_temperature.md") as file:
+        markdown_about_app = file.read()
+        st.markdown(markdown_about_app)
+
 
 st.subheader("Select a csv file with minimum temperatures...")
 min_temp_file = st.file_uploader("Choose a file", key=1)
@@ -46,7 +52,7 @@ if min_temp_file is not None:
 
     del min_df["date_year"]
 
-    soft_cold, hard_cold = get_colds(min_df)
+    soft_frost, hard_frost = get_frosts(min_df)
     del min_df["year_index"]
     min_df_empty = pd.DataFrame()
 
@@ -66,12 +72,12 @@ if min_temp_file is not None:
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.subheader("Soft cold")
-        st.dataframe(soft_cold)
+        st.subheader("Soft frost")
+        st.dataframe(soft_frost)
 
     with col2:
-        st.subheader("Hard cold")
-        st.dataframe(hard_cold)
+        st.subheader("Hard frost")
+        st.dataframe(hard_frost)
 
     with col3:
         st.subheader("15° temperature in spring/autumn")

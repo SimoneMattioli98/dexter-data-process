@@ -15,6 +15,12 @@ rain_emoji = emoji.emojize(":cloud_with_rain:")
 st.set_page_config(layout="wide", page_title="Rain", page_icon=rain_emoji)
 st.title(rain_emoji + " Rain")
 
+with st.expander("About this app"):
+    # Load Markdown content from file
+    with open("markdown/about_rain.md") as file:
+        markdown_about_app = file.read()
+        st.markdown(markdown_about_app)
+
 st.subheader("Select a csv file with rain data...")
 rain_file = st.file_uploader("Choose a file", key=1)
 

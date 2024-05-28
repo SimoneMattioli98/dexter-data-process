@@ -13,6 +13,12 @@ wind_emoji = emoji.emojize(":wind_face:")
 st.set_page_config(layout="wide", page_title="Wind", page_icon=wind_emoji)
 st.title(wind_emoji + " Wind")
 
+with st.expander("About this app"):
+    # Load Markdown content from file
+    with open("markdown/about_wind.md") as file:
+        markdown_about_app = file.read()
+        st.markdown(markdown_about_app)
+
 st.subheader("Select a csv file with wind SPEED data...")
 wind_speed_file = st.file_uploader("Choose a file", key=1)
 st.subheader("Select a csv file with wind DIRECTION data...")

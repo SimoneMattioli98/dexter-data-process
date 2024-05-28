@@ -247,30 +247,30 @@ def get_current_year(date):
     return date.year
 
 
-def get_colds(df):
+def get_frosts(df):
     # Converti la colonna 'date' in Timestamp solo una volta
     df["date"] = pd.to_datetime(df["date"], format="%d/%m/%Y")
     df["year_index"] = df["date"].apply(get_current_year)
 
-    # Crea maschere per soft cold e hard cold
-    soft_cold_mask = (df["temperature"] >= -2) & (df["temperature"] < 0)
-    hard_cold_mask = df["temperature"] < -2
+    # Crea maschere per soft frost e hard frost
+    soft_frost_mask = (df["temperature"] >= -2) & (df["temperature"] < 0)
+    hard_frost_mask = df["temperature"] < -2
 
-    soft_cold = df[soft_cold_mask].groupby("year_index")["date"].agg(["min", "max"])
-    soft_cold.columns = ["first_soft_cold", "last_soft_cold"]
-    soft_cold["first_soft_cold"] = soft_cold["first_soft_cold"].dt.strftime("%d/%m/%Y")
-    soft_cold["last_soft_cold"] = soft_cold["last_soft_cold"].dt.strftime("%d/%m/%Y")
+    soft_frost = df[soft_frost_mask].groupby("year_index")["date"].agg(["min", "max"])
+    soft_frost.columns = ["first_soft_frost", "last_soft_frost"]
+    soft_frost["first_soft_frost"] = soft_frost["first_soft_frost"].dt.strftime("%d/%m/%Y")
+    soft_frost["last_soft_frost"] = soft_frost["last_soft_frost"].dt.strftime("%d/%m/%Y")
 
-    hard_cold = df[hard_cold_mask].groupby("year_index")["date"].agg(["min", "max"])
-    hard_cold.columns = ["first_hard_cold", "last_hard_cold"]
-    hard_cold["first_hard_cold"] = hard_cold["first_hard_cold"].dt.strftime("%d/%m/%Y")
-    hard_cold["last_hard_cold"] = hard_cold["last_hard_cold"].dt.strftime("%d/%m/%Y")
+    hard_frost = df[hard_frost_mask].groupby("year_index")["date"].agg(["min", "max"])
+    hard_frost.columns = ["first_hard_frost", "last_hard_frost"]
+    hard_frost["first_hard_frost"] = hard_frost["first_hard_frost"].dt.strftime("%d/%m/%Y")
+    hard_frost["last_hard_frost"] = hard_frost["last_hard_frost"].dt.strftime("%d/%m/%Y")
 
     # Rinomina gli indici
-    soft_cold = soft_cold.rename(index=rename_index)
-    hard_cold = hard_cold.rename(index=rename_index)
+    soft_frost = soft_frost.rename(index=rename_index)
+    hard_frost = hard_frost.rename(index=rename_index)
 
-    return soft_cold, hard_cold
+    return soft_frost, hard_frost
 
 
 def get_top_ten(df, key, ascending=True):
