@@ -1,7 +1,5 @@
 import streamlit as st
 
-from utils import translate
-
 # Definisci le traduzioni disponibili
 translations = {
     'en': {
@@ -23,6 +21,10 @@ translations = {
         'rain_btn': "Pioggia"
     }
 }
+
+def translate(key, lang):
+    return translations[lang].get(key, key)
+
 # Funzione principale dell'applicazione
 def main():
     st.set_page_config(page_title=translate('page_title', st.session_state.language), page_icon="📊")
